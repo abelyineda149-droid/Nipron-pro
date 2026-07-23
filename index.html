@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nephron Pro - Clinical Kidney Scanner</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #0066cc; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #0066cc; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #004080; }
+        #result { margin-top: 20px; padding: 15px; background: #eef2f7; border-radius: 4px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Nephron Pro - የኩላሊት ምርመራ መሣሪያ</h2>
+        <div class="form-group">
+            <label for="creatinine">Creatinine (mg/dL):</label>
+            <input type="number" id="creatinine" step="0.1" placeholder="ለምሳሌ: 1.2">
+        </div>
+        <div class="form-group">
+            <label for="age">እድሜ (Age):</label>
+            <input type="number" id="age" placeholder="ለምሳሌ: 45">
+        </div>
+        <div class="form-group">
+            <label for="gender">ጾታ (Gender):</label>
+            <select id="gender">
+                <option value="male">ወንድ</option>
+                <option value="female">ሴት</option>
+            </select>
+        </div>
+        <button onclick="analyzeKidney()">ምርመራ አድርግ</button>
+        
+        <div id="result">
+            <h3>የምርመራ ውጤት:</h3>
+            <p id="outputText"></p>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "http://localhost:3000";
+
+        async function analyzeKidney() {
+            const creatinine = document.getElementById('creatinine').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+
+            if (!creatinine || !age) {
+                alert("እባክዎ ሁሉንም መረጃዎች ይሙሉ!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ creatinine, age, gender })
+                });
+
+                const data = await response.json();
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('outputText').innerText = data.message;
+            } catch (error) {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('outputText').innerText = "ሰርቨር ጋር መገናኘት አልተቻለም። እባክዎ ቆይተው ይሞክሩ።";
+            }
+        }
+    </script>
+</body>
+</html>
